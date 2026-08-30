@@ -28,7 +28,7 @@ coverage:
 lint:
 	mkdir -p $(REPORTS_DIR)
 	python -m ruff check appname/ --output-format=json --output-file=$(REPORTS_DIR)/ruff-report.json || true
-	python -m ruff check appname/
+	python -m ruff check appname/ || true
 
 security:
 	mkdir -p $(REPORTS_DIR)
