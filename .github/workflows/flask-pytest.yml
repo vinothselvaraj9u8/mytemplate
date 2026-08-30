@@ -33,6 +33,13 @@ jobs:
           pip install ruff bandit pytest-playwright
           python -m playwright install --with-deps chromium
 
+      - name: Start Flask server in background
+        run: |
+          python manage.py initdb
+          nohup python manage.py server > flask_server.log 2>&1 &
+          sleep 5
+          curl --retry 5 --retry-delay 2 --retry-connrefused http://127.0.0.1:5000/ || (cat flask_server.log && exit 1)
+
       - name: Run Reports (tests, coverage, lint, security)
         run: make reports
 
