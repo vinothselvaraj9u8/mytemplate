@@ -1,49 +1,44 @@
-.PHONY: docs test agent-setup agent-resetdb agent-smoke agent-test
+.PHONY: install test test-unit test-ui lint security coverage reports clean all
 
-VENV_PYTHON=env/bin/python
-AGENT_TEST_FILES=$(shell git ls-files 'tests/*.py')
+REPORTS_DIR := reports
 
-help:
-	@echo "  env         create a development environment using virtualenv"
-	@echo "  deps        install dependencies using pip"
-	@echo "  clean       remove unwanted files like .pyc's"
-	@echo "  lint        check style with flake8"
-	@echo "  test        run all your tests using py.test"
-	@echo "  agent-setup install dependencies in ./env for AI/code agents"
-	@echo "  agent-resetdb reset and seed local development database"
-	@echo "  agent-smoke run fast smoke tests"
-	@echo "  agent-test  run full test suite with coverage"
-
-env:
-	python3 -m venv env && \
-	. env/bin/activate && \
-	make deps
-
-deps:
+install:
 	pip install -r requirements.txt
 
-clean:
-	find . | grep -E "(__pycache__|\.pyc|\.DS_Store|\.db|\.pyo$\)" | xargs rm -rf
+test-unit:
+	mkdir -p $(REPORTS_DIR)
+	python -m pytest tests/test_main.py --junitxml=$(REPORTS_DIR)/junit-unit.xml -v
 
-lint:
-	flake8 --exclude=env .
+test-ui:
+	mkdir -p $(REPORTS_DIR)
+	python -m pytest tests/test_ui.py --junitxml=$(REPORTS_DIR)/junit-ui.xml -v
 
 test:
-	py.test tests
+	mkdir -p $(REPORTS_DIR)
+	python -m pytest tests/ --junitxml=$(REPORTS_DIR)/junit.xml -v
 
-agent-setup:
-	python3 -m venv env
-	$(VENV_PYTHON) -m pip install --upgrade pip
-	$(VENV_PYTHON) -m pip install -r requirements.txt
+coverage:
+	mkdir -p $(REPORTS_DIR)/coverage
+	python -m pytest tests/test_main.py \
+		--cov=appname \
+		--cov-report=xml:$(REPORTS_DIR)/coverage/coverage.xml \
+		--cov-report=html:$(REPORTS_DIR)/coverage/html \
+		--cov-report=term-missing
 
-agent-resetdb:
-	@if [ ! -x "$(VENV_PYTHON)" ]; then echo "Run 'make agent-setup' first."; exit 1; fi
-	APPNAME_ENV=dev $(VENV_PYTHON) manage.py resetdb
+lint:
+	mkdir -p $(REPORTS_DIR)
+	python -m ruff check appname/ --output-format=json --output-file=$(REPORTS_DIR)/ruff-report.json || true
+	python -m ruff check appname/
 
-agent-smoke:
-	@if [ ! -x "$(VENV_PYTHON)" ]; then echo "Run 'make agent-setup' first."; exit 1; fi
-	APPNAME_ENV=test $(VENV_PYTHON) -m pytest -q tests/test_urls.py tests/test_login.py
+security:
+	mkdir -p $(REPORTS_DIR)
+	python -m bandit -r appname/ -f json -o $(REPORTS_DIR)/bandit-report.json || true
+	python -m bandit -r appname/
 
-agent-test:
-	@if [ ! -x "$(VENV_PYTHON)" ]; then echo "Run 'make agent-setup' first."; exit 1; fi
-	APPNAME_ENV=test $(VENV_PYTHON) -m pytest --cov-report=term-missing --cov=appname $(AGENT_TEST_FILES)
+reports: test coverage lint security
+	@echo "All reports generated in $(REPORTS_DIR)/"
+
+clean:
+	rm -rf $(REPORTS_DIR) .pytest_cache .coverage
+
+all: install reports
