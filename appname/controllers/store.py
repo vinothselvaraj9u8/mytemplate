@@ -27,7 +27,7 @@ def payment():
         customer=customer.id,
         amount=4999,
         currency='usd',
-        description='Ingite Flask App Code'
+        description='MyTemplate Flask App Code'
     )
 
     user = User.lookup_or_create_by_email(request.form['stripeEmail'])
