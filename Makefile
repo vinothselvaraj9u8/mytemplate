@@ -19,7 +19,7 @@ test:
 
 coverage:
 	mkdir -p $(REPORTS_DIR)/coverage
-	python -m pytest tests/test_main.py \
+	python -m pytest tests/ \
 		--cov=appname \
 		--cov-report=xml:$(REPORTS_DIR)/coverage/coverage.xml \
 		--cov-report=html:$(REPORTS_DIR)/coverage/html \
