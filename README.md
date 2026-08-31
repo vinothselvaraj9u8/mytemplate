@@ -163,3 +163,108 @@ Best practices List:
 - [Creating Websites With Flask](http://maximebf.com/blog/2012/10/building-websites-in-python-with-flask/)
 - [Getting Bigger With Flask](http://maximebf.com/blog/2012/11/getting-bigger-with-flask/)
 - [Miguel Grinberg's Blog](https://blog.miguelgrinberg.com/category/Python)
+
+## Assessment Notes: Running the App and Checks Locally
+
+This section documents the work done for the DevOps Support and QA Engineer take-home assessment.
+
+### Running the app locally
+
+```bash
+pip install -r requirements.txt
+python manage.py initdb    # first time only, creates the database tables
+python manage.py server    # starts the dev server at http://127.0.0.1:5000
+```
+
+### Running the full quality pipeline
+
+A `Makefile` is provided with the following targets:
+
+```bash
+make test        # runs the full pytest suite, outputs JUnit XML to reports/junit.xml
+make coverage     # runs tests with coverage, outputs XML + HTML to reports/coverage/
+make lint         # runs Ruff static analysis, outputs JSON to reports/ruff-report.json
+make security     # runs Bandit security scan, outputs JSON to reports/bandit-report.json
+make reports      # runs all of the above in sequence
+make clean        # removes generated reports and caches
+```
+
+All reports are written to the `reports/` directory after running `make reports`.
+
+### Test suite
+
+- 105 tests total: the pre-existing starter-project test suite plus two new tests added for this
+  assessment (`tests/test_main.py` for a backend pytest check on the homepage/terms routes, and
+  `tests/test_ui.py` for a Playwright UI check that the homepage renders with MyTemplate branding).
+- Current coverage: ~86%.
+- The UI test (`tests/test_ui.py`) requires the Flask dev server to be running at
+  `http://127.0.0.1:5000` before it's run.
+
+### Known limitations
+
+- The hero screenshot image (`demo-1.png`) on the landing page still shows "ignite" branding baked
+  into the image pixels from the original starter project. This is a static screenshot, not live
+  text, so it was left as-is to stay in scope rather than editing image assets.
+- A typo'd brand reference ("Ingite" instead of "Ignite") was found and fixed in `store.py` during
+  manual review, since it wasn't caught by the initial case-sensitive find/replace pass.
+- Ruff reports 44 pre-existing style issues in the original starter codebase (103 additional issues
+  were auto-fixed). These are reported by `make lint` but do not fail the build, since fixing
+  pre-existing issues in unrelated legacy code was out of scope for this assessment.
+- Bandit reports 0 security issues; one finding (weak MD5 usage for a non-cryptographic salt) was
+  fixed by adding `usedforsecurity=False`.
+- The GitHub Actions workflow (`.github/workflows/flask-pytest.yml`) has been extended to run the
+  full `make reports` pipeline, including starting the Flask server so the Playwright UI test can
+  run in CI. The Makefile and all report generation have been fully verified locally; CI was tested
+  but not fully green at time of submission — see repository Actions tab for current status.
+
+## Assessment Notes: Running the App and Checks Locally
+
+This section documents the work done for the DevOps Support and QA Engineer take-home assessment.
+
+### Running the app locally
+
+```bash
+pip install -r requirements.txt
+python manage.py initdb    # first time only, creates the database tables
+python manage.py server    # starts the dev server at http://127.0.0.1:5000
+```
+
+### Running the full quality pipeline
+
+A `Makefile` is provided with the following targets:
+
+```bash
+make test        # runs the full pytest suite, outputs JUnit XML to reports/junit.xml
+make coverage     # runs tests with coverage, outputs XML + HTML to reports/coverage/
+make lint         # runs Ruff static analysis, outputs JSON to reports/ruff-report.json
+make security     # runs Bandit security scan, outputs JSON to reports/bandit-report.json
+make reports      # runs all of the above in sequence
+make clean        # removes generated reports and caches
+```
+
+All reports are written to the `reports/` directory after running `make reports`.
+
+### Test suite
+
+- 105 tests total: the pre-existing starter-project test suite plus two new tests added for this
+  assessment (`tests/test_main.py` for a backend pytest check on the homepage/terms routes, and
+  `tests/test_ui.py` for a Playwright UI check that the homepage renders with MyTemplate branding).
+- Current coverage: ~86%.
+- The UI test (`tests/test_ui.py`) requires the Flask dev server to be running at
+  `http://127.0.0.1:5000` before it's run.
+
+### Known limitations
+
+- The hero screenshot image (`demo-1.png`) on the landing page still shows "ignite" branding baked
+  into the image pixels from the original starter project. This is a static screenshot, not live
+  text, so it was left as-is to stay in scope rather than editing image assets.
+- A typo'd brand reference ("Ingite" instead of "Ignite") was found and fixed in `store.py` during
+  manual review, since it wasn't caught by the initial case-sensitive find/replace pass.
+- Ruff reports 44 pre-existing style issues in the original starter codebase (103 additional issues
+  were auto-fixed). These are reported by `make lint` but do not fail the build, since fixing
+  pre-existing issues in unrelated legacy code was out of scope for this assessment.
+- Bandit reports 0 security issues; one finding (weak MD5 usage for a non-cryptographic salt) was
+  fixed by adding `usedforsecurity=False`.
+- The GitHub Actions workflow (`.github/workflows/flask-pytest.yml`) has been extended to run the
+  full `make reports` pipeline, including starting the Flask server so the Playwright UI test can
+  run in CI. The Makefile and all report generation have been fully verified locally.
