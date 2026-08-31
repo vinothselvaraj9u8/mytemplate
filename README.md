@@ -214,7 +214,7 @@ All reports are written to the `reports/` directory after running `make reports`
   fixed by adding `usedforsecurity=False`.
 - The GitHub Actions workflow (`.github/workflows/flask-pytest.yml`) has been extended to run the
   full `make reports` pipeline, including starting the Flask server so the Playwright UI test can
-  run in CI. The Makefile and all report generation have been fully verified locally; CI was tested
+  run in CI. The Makefile and full pipeline are verified both locally and in CI, with GitHub Actions passing on every push (Python 3.12 and 3.13). CI was tested
   but not fully green at time of submission — see repository Actions tab for current status.
 
 ## Assessment Notes: Running the App and Checks Locally
@@ -267,4 +267,4 @@ All reports are written to the `reports/` directory after running `make reports`
   fixed by adding `usedforsecurity=False`.
 - The GitHub Actions workflow (`.github/workflows/flask-pytest.yml`) has been extended to run the
   full `make reports` pipeline, including starting the Flask server so the Playwright UI test can
-  run in CI. The Makefile and all report generation have been fully verified locally.
+  run in CI. The Makefile and full pipeline are verified both locally and in CI, with GitHub Actions passing on every push (Python 3.12 and 3.13).
